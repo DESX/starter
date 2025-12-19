@@ -8,6 +8,7 @@ $(eval GDPLL:=$(call TO_LOWER,$1))
 $(eval $1_DIR?=$b/$(GDPLL))
 $(eval $1_TGT?=$($1_DIR)/README.md)
 $(eval $1_TMP?=/tmp/$(GDPLL))
+$(eval $1_EXTRA?=)
 
 DIRS+=$($1_DIR)
 
@@ -28,7 +29,7 @@ endif
 
 ifneq ($($1_GIT_URL),)
 $(eval $1_TAR?=$(DL)/$(GDPLL)_$($1_COMMIT).tar.gz)
-$($1_TAR): | $(DL)
+$($1_TAR): | $(DL) $($1_EXTRA)
 	rm -rf $($1_TMP) && mkdir -p $($1_TMP) 
 	git clone --branch $($1_COMMIT) --depth 1 --recursive --shallow-submodules $($1_GIT_URL) $($1_TMP)
 ifneq ($($1_PRE_UNPACK),)
