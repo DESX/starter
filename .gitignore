@@ -1,2 +1,14 @@
-.cache
-bin
+# Build artifacts
+bin/
+build/
+.cache/
+
+# Test artifacts
+tests/build_*
+tests/.cache_*
+tests/*.patch
+tests/overlay_*
+
+# Example artifacts
+examples/*/bin/
+examples/*/.cache/

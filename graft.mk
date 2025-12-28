@@ -1,3 +1,32 @@
+# Graft - Dependency management with fetch, patch, and overlay
+# https://github.com/[owner]/graft
+# MIT License
+#
+# Required variables before include:
+#   b   - Output directory for dependencies (e.g., bin/)
+#   DL  - Cache directory for downloads (e.g., .cache/)
+#
+# Per-dependency variables (NAME = uppercase identifier):
+#   NAME_GIT_URL    - Git repository URL (use with NAME_COMMIT)
+#   NAME_TAR_URL    - Direct tarball download URL
+#   NAME_ZIP_URL    - Direct zip download URL
+#   NAME_COMMIT     - Git tag/branch/commit (required for GIT_URL)
+#   NAME_TGT        - Target file to check existence (default: README.md)
+#   NAME_DIR        - Install directory (default: $b/name)
+#   NAME_PRE_UNPACK - Command to run after clone, before caching
+#   NAME_POST_UNPACK- Command to run after extraction
+#   NAME_PATCH      - Patch file to apply after extraction
+#   NAME_OVERLAY    - Directory to symlink over dependency
+#   NAME_EXTRA      - Dependencies that must be built first
+#
+# Generated variables:
+#   NAME_DIR        - Path to extracted dependency
+#   NAME_TGT        - Target file path
+#   NAME_TAR        - Cached tarball path
+#
+# Generated targets:
+#   name_tgt        - Build the dependency
+#   name_patch      - Regenerate patch from modifications (if NAME_PATCH set)
 
 TO_LOWER = $(shell echo '$(1)' | tr '[:upper:]' '[:lower:]')
 OVERLAY=find $1 -type f -printf '%P\n' | while read -r file; do mkdir -p "$2/$$(dirname "$$file")" && rm -f "$2/$$file" && ln -rs "$$(realpath "$1/$$file")" "$2/$$file"; done
@@ -31,7 +60,7 @@ ifneq ($($1_GIT_URL),)
 $(eval $1_TAR?=$(DL)/$(GDPLL)_$($1_COMMIT).tar.gz)
 $($1_TAR): | $(DL) $($1_EXTRA)
 	rm -rf $($1_TMP) && mkdir -p $($1_TMP) 
-	git clone --branch $($1_COMMIT) --depth 1 --recursive --shallow-submodules $($1_GIT_URL) $($1_TMP)
+	git clone -c advice.detachedHead=false --branch $($1_COMMIT) --depth 1 --recursive --shallow-submodules $($1_GIT_URL) $($1_TMP)
 ifneq ($($1_PRE_UNPACK),)
 	$($1_PRE_UNPACK)
 endif
